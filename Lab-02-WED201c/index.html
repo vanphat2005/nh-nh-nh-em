@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Anh có điều muốn nói</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fce4ec;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            background: #ec407a;
+            color: white;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .box {
+            position: absolute;
+            background: #f48fb1;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            width: 180px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .falling-img {
+            position: absolute;
+            width: 100px;
+            top: -150px;
+            /* luôn ở ngoài màn hình trên */
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            from {
+                top: -150px;
+                opacity: 0.8;
+            }
+
+            to {
+                top: 100vh;
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Anh có điều muốn nói ❤️</h1>
+    <button onclick="startShow()">Nhấn vào đây nè</button>
+
+
+    <script>
+        function startShow() {
+            const numberOfBoxes = 55; // số box tối đa
+            const messages = [
+                "Nhớ nhớ nhớ em!",
+                "Tràn ngập bộ 💖"
+            ];
+
+            const boxes = []; // chứa thông tin {el, x, y}
+            let count = 0;
+
+            // hàm tạo 1 box mới
+            function createBox() {
+                // nếu chưa đủ 55 box -> thêm bình thường
+                if (boxes.length < numberOfBoxes) {
+                    addNewBox();
+                } else {
+                    // đủ 55 box: xóa box cũ nhất rồi thêm box mới
+                    let old = boxes.shift(); // lấy box đầu tiên trong mảng
+                    old.el.remove();         // xóa khỏi DOM
+                    addNewBox();
+                }
+            }
+
+            function addNewBox() {
+                let box = document.createElement("div");
+                box.className = "box";
+                box.innerHTML = "<h3>" + messages[count % messages.length] + "</h3>";
+
+                // chọn vị trí không đè
+                let x, y, valid = false;
+                while (!valid) {
+                    x = Math.random() * (window.innerWidth - 200);
+                    y = Math.random() * (window.innerHeight - 100);
+
+                    valid = true;
+                    for (let b of boxes) {
+                        if (Math.abs(x - b.x) < 120 && Math.abs(y - b.y) < 80) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                }
+
+                box.style.left = x + "px";
+                box.style.top = y + "px";
+                document.body.appendChild(box);
+
+                boxes.push({ el: box, x, y });
+                count++;
+            }
+
+            // tạo box định kỳ
+            setInterval(createBox, 200);
+
+            const imgSources = [
+                "images/vien1.jpg",
+                "images/vien2.jpg"
+            ];
+
+            const maxImages = 30; // tối đa ảnh trên màn hình
+            let dropped = 0;
+
+            function dropImage() {
+                if (document.querySelectorAll(".falling-img").length >= maxImages) {
+                    // nếu đủ số ảnh rồi thì chờ ảnh cũ biến mất mới thêm
+                    setTimeout(dropImage, 500);
+                    return;
+                }
+
+                let img = document.createElement("img");
+                img.src = imgSources[Math.floor(Math.random() * imgSources.length)];
+                img.className = "falling-img";
+
+                img.style.left = Math.random() * (window.innerWidth - 100) + "px";
+                img.style.animationDuration = (3 + Math.random() * 3) + "s";
+
+                document.body.appendChild(img);
+
+                img.addEventListener("animationend", () => img.remove());
+
+                dropped++;
+                setTimeout(dropImage, 500); // gọi lại sau 0.5s
+            }
+
+            dropImage(); // bắt đầu
+        }
+    </script>
+</body>
+
+</html>
